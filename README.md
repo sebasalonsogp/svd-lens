@@ -12,18 +12,22 @@ The core interactive path is working: visitors can begin with a generated
 geometric sample or upload a PNG/JPEG, select a retained rank, compare the
 processed original with its reconstruction, and inspect quality metrics and the
 singular-value spectrum. A reproducible performance baseline now supports the
-512-pixel processing cap. Visual refinement, additional samples, and richer
-explanatory states remain before deployment.
+512-pixel processing cap. The responsive visual system, sample catalog,
+difference view, and contextual explanations are complete; deployment and the
+final portfolio media remain.
 
 ## Current experience
 
-Visitors can start with a zero-setup sample or upload a PNG or JPEG,
-compare the original with a rank-`k` reconstruction, and inspect:
+Visitors can choose among three zero-setup experiments or upload a PNG or JPEG,
+use rank presets or the precise slider, compare the original with a rank-`k`
+reconstruction, and inspect:
 
 - Retained singular-value energy
 - Relative Frobenius reconstruction error
 - Estimated matrix representation size
 - The singular-value spectrum
+- An optional normalized absolute-difference map
+- A plain-language interpretation of the current fidelity-size tradeoff
 
 This is an educational portfolio prototype, not a replacement for production
 image codecs.
@@ -35,7 +39,9 @@ image codecs.
 - `svd_lab/images.py` owns safe image preparation.
 - `svd_lab/samples.py` supplies the deterministic zero-setup sample.
 - `svd_lab/plots.py` creates reusable Plotly figures.
-- `svd_lab/explanations.py` is reserved for richer plain-language interpretations.
+- `svd_lab/explanations.py` owns rank presets and plain-language interpretations.
+- `assets/styles.css` adds the small responsive and keyboard-focus layer over the
+  Streamlit theme.
 - `benchmarks/svd_latency.py` measures the framework-independent numerical path.
 - `tests/` verifies numerical behavior, image handling, the application shell,
   and the boundary between domain logic and UI frameworks.

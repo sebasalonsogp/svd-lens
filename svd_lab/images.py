@@ -1,16 +1,21 @@
 """Framework-independent preparation of uploaded images for SVD."""
 
+import warnings
 from dataclasses import dataclass
 from io import BytesIO
 
 import numpy as np
 from numpy.typing import NDArray
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 MAX_IMAGE_DIMENSION = 512
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 MAX_DECODED_PIXELS = 20_000_000
 ALLOWED_FORMATS = ("PNG", "JPEG")
+
+
+class ImageValidationError(ValueError):
+    """Raised when uploaded bytes cannot be processed safely as an image."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,12 +40,30 @@ def prepare_image(
     max_decoded_pixels: int = MAX_DECODED_PIXELS,
 ) -> PreparedImage:
     """Decode PNG/JPEG bytes and return a bounded normalized grayscale image."""
-    del max_upload_bytes, max_decoded_pixels  # Enforced by the validation slice.
+    if not isinstance(data, bytes):
+        raise TypeError("data must be bytes")
+    _require_positive_int("max_dimension", max_dimension)
+    _require_positive_int("max_upload_bytes", max_upload_bytes)
+    _require_positive_int("max_decoded_pixels", max_decoded_pixels)
 
-    with Image.open(BytesIO(data), formats=ALLOWED_FORMATS) as opened:
-        source_format = opened.format
-        opened.load()
-        oriented = ImageOps.exif_transpose(opened)
+    if len(data) > max_upload_bytes:
+        raise ImageValidationError("Image exceeds the upload-size limit.")
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(BytesIO(data), formats=ALLOWED_FORMATS) as opened:
+                if opened.width * opened.height > max_decoded_pixels:
+                    raise ImageValidationError("Image exceeds the decoded-pixel limit.")
+                source_format = opened.format
+                opened.load()
+                oriented = ImageOps.exif_transpose(opened).copy()
+    except ImageValidationError:
+        raise
+    except (Image.DecompressionBombError, Image.DecompressionBombWarning) as error:
+        raise ImageValidationError("Image exceeds the decoded-pixel limit.") from error
+    except (OSError, SyntaxError, UnidentifiedImageError) as error:
+        raise ImageValidationError("Upload must be a valid PNG or JPEG image.") from error
 
     original_size = oriented.size
     image = _composite_transparency(oriented)
@@ -57,6 +80,11 @@ def prepare_image(
         processed_size=grayscale.size,
         source_format=source_format,
     )
+
+
+def _require_positive_int(name: str, value: int) -> None:
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ValueError(f"{name} must be a positive integer")
 
 
 def _composite_transparency(image: Image.Image) -> Image.Image:

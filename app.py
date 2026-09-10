@@ -13,7 +13,7 @@ from svd_lab import PRODUCT_NAME
 from svd_lab.explanations import reconstruction_caption
 from svd_lab.images import ImageValidationError, prepare_image, to_display_image
 from svd_lab.plots import singular_value_figure
-from svd_lab.samples import default_sample
+from svd_lab.samples import available_samples
 from svd_lab.svd import SVDResult, decompose, metrics_for, reconstruct
 
 
@@ -45,6 +45,12 @@ def main() -> None:
     # The widget limit complements the stricter byte and decoded-pixel checks in
     # svd_lab.images. Source:
     # https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader
+    samples = {sample.name: sample for sample in available_samples()}
+    sample_name = st.selectbox(
+        "Sample image",
+        options=tuple(samples),
+        help="Each sample emphasizes a different singular-value pattern.",
+    )
     upload = st.file_uploader(
         "Upload your own image",
         type=["png", "jpg", "jpeg"],
@@ -56,7 +62,7 @@ def main() -> None:
     )
 
     if upload is None:
-        sample = default_sample()
+        sample = samples[sample_name]
         matrix = sample.matrix
         source_caption = (
             f"Sample: {sample.name} · {matrix.shape[1]} × {matrix.shape[0]} px — "

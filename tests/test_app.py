@@ -26,6 +26,8 @@ def test_app_renders_default_sample_analysis() -> None:
     assert app.file_uploader[0].label == "Upload your own image"
     assert app.file_uploader[0].allowed_type == [".png", ".jpg", ".jpeg"]
     assert "512 px" in app.file_uploader[0].help
+    assert app.selectbox[0].label == "Sample image"
+    assert app.selectbox[0].options == ["Geometric study", "Soft bands", "Woven detail"]
     assert app.slider[0].label == "Retained rank"
     assert app.slider[0].min == 1
     assert app.slider[0].max == 180
@@ -68,6 +70,16 @@ def test_valid_upload_replaces_the_default_sample() -> None:
     assert app.slider[0].max == 2
     assert app.slider[0].value == 2
     assert any("PNG · 3 × 2 px" in caption.value for caption in app.caption)
+
+
+def test_sample_selector_changes_the_source_image() -> None:
+    app = AppTest.from_file(APP_PATH, default_timeout=10).run()
+
+    app.selectbox[0].select("Soft bands").run()
+
+    assert not app.exception
+    assert app.selectbox[0].value == "Soft bands"
+    assert any("Sample: Soft bands" in caption.value for caption in app.caption)
 
 
 def test_invalid_upload_shows_a_safe_error_state() -> None:

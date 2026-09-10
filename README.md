@@ -8,9 +8,10 @@ image approximation.
 
 ## Status
 
-The project architecture and application shell are scaffolded. The first
-vertical slice will add image preparation, SVD computation, rank-based
-reconstruction, metrics, and the singular-value visualization.
+The framework-independent mathematical core implements compact SVD,
+rank-based reconstruction, retained energy, relative reconstruction error, and
+matrix representation-size metrics. Image preparation and the complete
+interactive experience are the next implementation layers.
 
 ## Planned experience
 
@@ -37,6 +38,21 @@ image codecs.
 
 The `svd_lab` package deliberately contains no Streamlit imports, allowing a
 future Gradio adapter to reuse the mathematical and presentation logic.
+
+### Mathematical API
+
+`svd_lab.svd` exposes three operations:
+
+- `decompose(matrix)` validates a real, finite, non-empty matrix and returns
+  immutable compact SVD factors.
+- `reconstruct(result, rank)` returns the approximation formed from the leading
+  singular components.
+- `metrics_for(result, rank)` returns quality and representation metrics without
+  reconstructing the matrix solely to measure its error.
+
+Ranks are one-based and must fall between `1` and `result.max_rank`. Invalid
+matrices and ranks raise `ValueError`. Retained energy is reported as `None` for
+an all-zero matrix because its energy ratio has a zero denominator.
 
 ## Local development
 

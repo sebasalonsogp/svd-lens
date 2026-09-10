@@ -8,15 +8,15 @@ image approximation.
 
 ## Status
 
-The framework-independent mathematical and image-processing core is complete.
-It implements compact SVD, rank reconstruction and metrics, plus safe PNG/JPEG
-decoding, orientation, resizing, grayscale normalization, and reconstruction
-display conversion. The interactive experience is the next implementation
-layer.
+The core interactive path is working: visitors can begin with a generated
+geometric sample or upload a PNG/JPEG, select a retained rank, compare the
+processed original with its reconstruction, and inspect quality metrics and the
+singular-value spectrum. Visual refinement, additional samples, explanatory
+states, and performance measurement remain before deployment.
 
-## Planned experience
+## Current experience
 
-Visitors will be able to start with a curated sample or upload a PNG or JPEG,
+Visitors can start with a zero-setup sample or upload a PNG or JPEG,
 compare the original with a rank-`k` reconstruction, and inspect:
 
 - Retained singular-value energy
@@ -32,8 +32,9 @@ image codecs.
 - `app.py` contains only the Streamlit interface and session orchestration.
 - `svd_lab/svd.py` owns decomposition, reconstruction, and mathematical metrics.
 - `svd_lab/images.py` owns safe image preparation.
+- `svd_lab/samples.py` supplies the deterministic zero-setup sample.
 - `svd_lab/plots.py` creates reusable Plotly figures.
-- `svd_lab/explanations.py` creates plain-language interpretations.
+- `svd_lab/explanations.py` is reserved for richer plain-language interpretations.
 - `tests/` verifies numerical behavior, image handling, the application shell,
   and the boundary between domain logic and UI frameworks.
 

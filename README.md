@@ -8,10 +8,11 @@ image approximation.
 
 ## Status
 
-The framework-independent mathematical core implements compact SVD,
-rank-based reconstruction, retained energy, relative reconstruction error, and
-matrix representation-size metrics. Image preparation and the complete
-interactive experience are the next implementation layers.
+The framework-independent mathematical and image-processing core is complete.
+It implements compact SVD, rank reconstruction and metrics, plus safe PNG/JPEG
+decoding, orientation, resizing, grayscale normalization, and reconstruction
+display conversion. The interactive experience is the next implementation
+layer.
 
 ## Planned experience
 
@@ -54,6 +55,19 @@ Ranks are one-based and must fall between `1` and `result.max_rank`. Invalid
 matrices and ranks raise `ValueError`. Retained energy is reported as `None` for
 an all-zero matrix because its energy ratio has a zero denominator.
 
+### Image API
+
+`svd_lab.images.prepare_image(data)` accepts PNG or JPEG bytes and returns a
+`PreparedImage` containing a read-only, normalized grayscale matrix and its
+source and processed dimensions. The default limits are 10 MiB per upload, 20
+million decoded pixels, and 512 pixels on the longest processed side. Images
+are never enlarged, aspect ratio is preserved, EXIF orientation is applied,
+and transparent pixels are composited over white.
+
+`svd_lab.images.to_display_image(matrix)` converts a finite two-dimensional
+matrix back to an 8-bit Pillow grayscale image, clipping small numerical
+overshoots to the displayable range.
+
 ## Local development
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
@@ -81,5 +95,7 @@ as the entry point. The GitHub repository remains the source of truth.
 
 ## Uploaded images
 
-The finished application will process uploaded images temporarily for the
-active session and will not intentionally persist them.
+The application processes uploaded bytes in memory and does not intentionally
+persist them or use the supplied filename. Uploads are restricted by encoded
+size, decoded pixel count, and detected image format before entering the
+numerical pipeline.

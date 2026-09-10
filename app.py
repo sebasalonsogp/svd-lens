@@ -10,6 +10,7 @@ import numpy as np
 import streamlit as st
 
 from svd_lab import PRODUCT_NAME
+from svd_lab.explanations import reconstruction_caption
 from svd_lab.images import ImageValidationError, prepare_image, to_display_image
 from svd_lab.plots import singular_value_figure
 from svd_lab.samples import default_sample
@@ -111,7 +112,7 @@ def main() -> None:
         st.subheader(f"Rank-{rank} reconstruction")
         st.image(
             to_display_image(reconstruction),
-            caption=f"Rebuilt from the first {rank} singular components.",
+            caption=reconstruction_caption(rank),
             width="stretch",
         )
 

@@ -6,6 +6,8 @@ from pathlib import Path
 from PIL import Image
 from streamlit.testing.v1 import AppTest
 
+from svd_lab.explanations import reconstruction_caption
+
 APP_PATH = Path(__file__).parents[1] / "app.py"
 
 
@@ -53,6 +55,7 @@ def test_rank_slider_updates_the_analysis() -> None:
     assert app.metric[1].value != initial_energy
     assert app.metric[2].value != initial_error
     assert app.subheader[1].value == "Rank-1 reconstruction"
+    assert reconstruction_caption(1) == "Rebuilt from the leading singular component."
 
 
 def test_valid_upload_replaces_the_default_sample() -> None:

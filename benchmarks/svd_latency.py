@@ -139,7 +139,7 @@ def _measure(operation: Callable[[], object], repetitions: int) -> LatencySummar
 
 
 def _format_latency(summary: LatencySummary) -> str:
-    return f"{summary.median_ms:.1f} ms ({summary.fastest_ms:.1f}–{summary.slowest_ms:.1f})"
+    return f"{summary.median_ms:.1f} ms ({summary.fastest_ms:.1f}-{summary.slowest_ms:.1f})"
 
 
 def _require_positive_int(name: str, value: int) -> None:
@@ -164,9 +164,9 @@ def main() -> None:
 
     print(f"Platform: {platform.platform()}")
     print(
-        f"Machine: {platform.machine()} · Python {sys.version.split()[0]} · NumPy {np.__version__}"
+        f"Machine: {platform.machine()} | Python {sys.version.split()[0]} | NumPy {np.__version__}"
     )
-    print(f"Repetitions: {args.repetitions} · Seed: {args.seed}")
+    print(f"Repetitions: {args.repetitions} | Seed: {args.seed}")
     print()
     print(format_markdown(results))
 

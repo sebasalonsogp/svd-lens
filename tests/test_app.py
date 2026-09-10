@@ -37,7 +37,7 @@ def test_app_renders_default_sample_analysis() -> None:
     assert "512 px" in app.file_uploader[0].help
     assert app.selectbox[0].label == "Sample image"
     assert app.selectbox[0].options == ["Geometric study", "Soft bands", "Woven detail"]
-    assert app.slider[0].label == "Retained rank"
+    assert app.slider[0].label == "Rank — patterns kept"
     assert app.slider[0].min == 1
     assert app.slider[0].max == 180
     assert app.slider[0].value == 12
@@ -54,6 +54,17 @@ def test_app_renders_default_sample_analysis() -> None:
     ]
     assert app.metric[0].value == "12 / 180"
     assert len(app.get("plotly_chart")) == 1
+    assert any(
+        "Rank is how many image-building patterns are kept" in caption.value
+        for caption in app.caption
+    )
+    assert any(
+        "Each point is one image-building pattern" in caption.value for caption in app.caption
+    )
+    assert any(
+        "Retained energy measures mathematical information" in caption.value
+        for caption in app.caption
+    )
     assert app.expander[0].label == "How the reconstruction works"
     assert [heading.value for heading in app.subheader[:2]] == [
         "Processed original",

@@ -104,7 +104,10 @@ def main() -> None:
         decomposition = cached_decomposition(matrix)
 
     st.header("Set the rank", divider="gray")
-    st.caption("Use a preset or tune the retained components one at a time.")
+    st.caption(
+        "Rank is how many image-building patterns are kept. Lower ranks preserve broad "
+        "structure; higher ranks add edges, texture, and fine detail."
+    )
     initial_rank = min(12, decomposition.max_rank)
     if "rank" not in st.session_state:
         st.session_state.rank = initial_rank
@@ -122,10 +125,10 @@ def main() -> None:
         )
 
     rank = st.slider(
-        "Retained rank",
+        "Rank — patterns kept",
         min_value=1,
         max_value=decomposition.max_rank,
-        help="The number of singular components used to rebuild the image.",
+        help="The number of strongest mathematical patterns used to rebuild the image.",
         key="rank",
     )
     reconstruction = reconstruct(decomposition, rank)
@@ -181,14 +184,18 @@ def main() -> None:
 
     st.header("Read the spectrum", divider="gray")
     st.caption(
-        "Tall singular values carry the strongest matrix patterns. The highlighted prefix "
-        "is included in the current reconstruction."
+        "Each point is one image-building pattern. Taller points contribute more to the "
+        "image. Green points and the shaded region are included in the reconstruction."
     )
     st.plotly_chart(
         singular_value_figure(decomposition, rank),
         width="stretch",
         config={"displayModeBar": False},
         key="singular-value-spectrum",
+    )
+    st.caption(
+        "Retained energy measures mathematical information, not perceived sharpness. "
+        "Fine edges can matter visually even when they contribute little energy."
     )
 
     st.subheader(insight.title)

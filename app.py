@@ -106,6 +106,11 @@ def main() -> None:
     st.header("Set the rank", divider="gray")
     st.caption("Use a preset or tune the retained components one at a time.")
     initial_rank = min(12, decomposition.max_rank)
+    if "rank" not in st.session_state:
+        st.session_state.rank = initial_rank
+    elif st.session_state.rank > decomposition.max_rank:
+        st.session_state.rank = decomposition.max_rank
+
     presets = rank_presets(decomposition.max_rank)
     preset_columns = st.columns(len(presets), gap="small")
     for column, preset in zip(preset_columns, presets, strict=True):
@@ -120,7 +125,6 @@ def main() -> None:
         "Retained rank",
         min_value=1,
         max_value=decomposition.max_rank,
-        value=initial_rank,
         help="The number of singular components used to rebuild the image.",
         key="rank",
     )

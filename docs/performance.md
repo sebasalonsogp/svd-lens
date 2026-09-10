@@ -59,11 +59,17 @@ The command prints the runtime environment and a Markdown results table. Its
 automated tests verify the benchmark interface but deliberately avoid fixed
 timing assertions.
 
-## Hosted verification gate
+## Hosted verification
 
-Hosted timing cannot be measured honestly until the deployment exists. During
-deployment, repeat five uncached uploads of a 512-pixel square image and five
-rank changes. The release targets are:
+The initial Streamlit Community Cloud deployment was smoke-tested on September
+10, 2026. The generated sample loaded successfully, the rank-1 preset updated
+the reconstruction, metrics, interpretation, and spectrum, and the difference
+view rendered without a memory-related restart.
+
+That smoke test confirms the deployed interaction path but is not a repeatable
+end-to-end timing benchmark. For a future quantitative hosted check, repeat five
+uncached uploads of a 512-pixel square image and five rank changes. The working
+targets remain:
 
 - first uncached result visible within 2.5 seconds;
 - rank-change result visible within 250 ms;

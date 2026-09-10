@@ -1,7 +1,8 @@
 # Sample image sources
 
-No sample images have been selected yet.
+SVD Lens does not bundle externally sourced image files. Its three sample
+images—Geometric study, Soft bands, and Woven detail—are generated
+deterministically with NumPy in `svd_lab/samples.py`.
 
-Only include images that are original, generated for this project, or available
-under a compatible license. For each image, record its filename, creator,
-source URL, license, and any modifications made for the application.
+Keeping the catalog procedural makes the first-run experience immediate and
+reproducible without adding third-party asset licenses to the repository.

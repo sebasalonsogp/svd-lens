@@ -31,6 +31,23 @@ class SVDResult:
         return int(self.singular_values.size)
 
 
+@dataclass(frozen=True, slots=True)
+class ApproximationMetrics:
+    """Quality and representation measures for one reconstruction rank.
+
+    ``representation_ratio`` is the original scalar-value count divided by the
+    factorized count. Values above one indicate a smaller factorized
+    representation; values below one indicate a larger one.
+    """
+
+    rank: int
+    retained_energy: float | None
+    relative_error: float
+    original_value_count: int
+    factorized_value_count: int
+    representation_ratio: float
+
+
 def decompose(matrix: ArrayLike) -> SVDResult:
     """Return the compact SVD of a finite, non-empty real matrix.
 
@@ -61,6 +78,47 @@ def reconstruct(result: SVDResult, rank: int) -> FloatMatrix:
     validated_rank = _validated_rank(rank, result.max_rank)
     scaled_u = result.u[:, :validated_rank] * result.singular_values[:validated_rank]
     return scaled_u @ result.vt[:validated_rank, :]
+
+
+def metrics_for(result: SVDResult, rank: int) -> ApproximationMetrics:
+    """Return quality and representation metrics for a reconstruction rank.
+
+    Retained energy is ``None`` for a zero matrix because its energy ratio has a
+    zero denominator. Its relative reconstruction error is defined as zero
+    because every rank reconstructs it exactly.
+
+    Raises:
+        ValueError: If ``rank`` is not an integer from 1 through
+            ``result.max_rank``.
+    """
+    validated_rank = _validated_rank(rank, result.max_rank)
+    singular_values = result.singular_values
+    largest_value = float(singular_values[0])
+
+    if largest_value == 0.0:
+        retained_energy = None
+        relative_error = 0.0
+    else:
+        scaled_values = singular_values / largest_value
+        squared_values = np.square(scaled_values)
+        total_energy = float(np.sum(squared_values))
+        retained = float(np.sum(squared_values[:validated_rank]) / total_energy)
+        discarded = float(np.sum(squared_values[validated_rank:]) / total_energy)
+        retained_energy = float(np.clip(retained, 0.0, 1.0))
+        relative_error = float(np.sqrt(np.clip(discarded, 0.0, 1.0)))
+
+    rows, columns = result.original_shape
+    original_value_count = rows * columns
+    factorized_value_count = validated_rank * (rows + columns + 1)
+
+    return ApproximationMetrics(
+        rank=validated_rank,
+        retained_energy=retained_energy,
+        relative_error=relative_error,
+        original_value_count=original_value_count,
+        factorized_value_count=factorized_value_count,
+        representation_ratio=original_value_count / factorized_value_count,
+    )
 
 
 def _as_float_matrix(matrix: ArrayLike) -> FloatMatrix:
@@ -98,4 +156,4 @@ def _validated_rank(rank: int, max_rank: int) -> int:
     return validated_rank
 
 
-__all__ = ["SVDResult", "decompose", "reconstruct"]
+__all__ = ["ApproximationMetrics", "SVDResult", "decompose", "metrics_for", "reconstruct"]

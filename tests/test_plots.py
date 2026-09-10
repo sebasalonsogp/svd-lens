@@ -18,9 +18,11 @@ def test_singular_value_figure_highlights_retained_components() -> None:
     assert tuple(figure.data[0].x) == (1, 2, 3)
     assert tuple(figure.data[0].y) == pytest.approx((1.0, 0.5, 0.25))
     assert figure.data[0].name == "All components"
+    assert figure.data[0].line.color == "#8DA39B"
     assert tuple(figure.data[1].x) == (1, 2)
     assert tuple(figure.data[1].y) == pytest.approx((1.0, 0.5))
     assert figure.data[1].name == "Retained at rank 2"
+    assert figure.data[1].line.color == "#2EC4A6"
 
 
 def test_singular_value_figure_handles_zero_matrix() -> None:

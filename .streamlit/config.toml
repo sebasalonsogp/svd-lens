@@ -1,10 +1,16 @@
 [theme]
 base = "dark"
-primaryColor = "#58A6FF"
-backgroundColor = "#0D1117"
-secondaryBackgroundColor = "#161B22"
-textColor = "#F0F6FC"
+primaryColor = "#2EC4A6"
+backgroundColor = "#0B1110"
+secondaryBackgroundColor = "#15211E"
+textColor = "#F2F7F5"
+linkColor = "#63E6CE"
+borderColor = "#344840"
+showWidgetBorder = true
+baseRadius = "small"
+buttonRadius = "small"
 font = "sans-serif"
+headingFont = "sans-serif"
 
 [server]
 maxUploadSize = 10

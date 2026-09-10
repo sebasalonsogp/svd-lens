@@ -21,7 +21,7 @@ def singular_value_figure(result: SVDResult, rank: int) -> go.Figure:
             x=components,
             y=relative_values,
             mode="lines",
-            line={"color": "#8B949E", "width": 2},
+            line={"color": "#8DA39B", "width": 2},
             name="All components",
             hovertemplate="Component %{x}<br>Relative magnitude %{y:.3f}<extra></extra>",
         )
@@ -31,8 +31,8 @@ def singular_value_figure(result: SVDResult, rank: int) -> go.Figure:
             x=components[:rank],
             y=relative_values[:rank],
             mode="lines+markers",
-            line={"color": "#58A6FF", "width": 3},
-            marker={"color": "#58A6FF", "size": 6},
+            line={"color": "#2EC4A6", "width": 3},
+            marker={"color": "#2EC4A6", "size": 6},
             name=f"Retained at rank {rank}",
             hovertemplate="Retained component %{x}<br>Relative magnitude %{y:.3f}<extra></extra>",
         )

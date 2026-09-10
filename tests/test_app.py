@@ -23,6 +23,12 @@ def test_app_renders_default_sample_analysis() -> None:
 
     assert not app.exception
     assert app.title[0].value == "SVD Lens"
+    assert [header.value for header in app.header] == [
+        "Choose an image",
+        "Set the rank",
+        "Compare",
+        "Read the spectrum",
+    ]
     assert app.file_uploader[0].label == "Upload your own image"
     assert app.file_uploader[0].allowed_type == [".png", ".jpg", ".jpeg"]
     assert "512 px" in app.file_uploader[0].help

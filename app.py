@@ -6,6 +6,8 @@ The reusable numerical and presentation logic belongs in ``svd_lab``.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import streamlit as st
 
@@ -15,6 +17,8 @@ from svd_lab.images import ImageValidationError, prepare_image, to_display_image
 from svd_lab.plots import singular_value_figure
 from svd_lab.samples import available_samples
 from svd_lab.svd import SVDResult, decompose, metrics_for, reconstruct
+
+STYLE_PATH = Path(__file__).parent / "assets" / "styles.css"
 
 
 # Streamlit recommends st.cache_data for serializable computational results,
@@ -39,32 +43,41 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
-
-    st.title(PRODUCT_NAME)
-    st.caption("See how singular value decomposition rebuilds an image, one rank at a time.")
+    st.html(STYLE_PATH)
     st.markdown(
-        "Start with the geometric sample below or upload your own image. "
-        "Move the rank slider and watch visual detail return as error falls."
+        '<a class="skip-link" href="#choose-an-image">Skip to image controls</a>',
+        unsafe_allow_html=True,
     )
+
+    st.caption("INTERACTIVE MATRIX LAB")
+    st.title(PRODUCT_NAME)
+    st.markdown(
+        "See singular value decomposition rebuild an image, one rank at a time. "
+        "Choose an experiment or bring your own image, then watch structure return as error falls."
+    )
+    st.header("Choose an image", divider="gray")
 
     # The widget limit complements the stricter byte and decoded-pixel checks in
     # svd_lab.images. Source:
     # https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader
     samples = {sample.name: sample for sample in available_samples()}
-    sample_name = st.selectbox(
-        "Sample image",
-        options=tuple(samples),
-        help="Each sample emphasizes a different singular-value pattern.",
-    )
-    upload = st.file_uploader(
-        "Upload your own image",
-        type=["png", "jpg", "jpeg"],
-        max_upload_size=10,
-        help=(
-            "PNG or JPEG, up to 10 MiB. Images are processed in memory, resized to "
-            "at most 512 px on the longest side, and not saved."
-        ),
-    )
+    sample_column, upload_column = st.columns([1, 1.35], gap="large")
+    with sample_column:
+        sample_name = st.selectbox(
+            "Sample image",
+            options=tuple(samples),
+            help="Each sample emphasizes a different singular-value pattern.",
+        )
+    with upload_column:
+        upload = st.file_uploader(
+            "Upload your own image",
+            type=["png", "jpg", "jpeg"],
+            max_upload_size=10,
+            help=(
+                "PNG or JPEG, up to 10 MiB. Images are processed in memory, resized to "
+                "at most 512 px on the longest side, and not saved."
+            ),
+        )
 
     if upload is None:
         sample = samples[sample_name]
@@ -90,6 +103,8 @@ def main() -> None:
     with st.spinner("Computing the singular value decomposition…"):
         decomposition = cached_decomposition(matrix)
 
+    st.header("Set the rank", divider="gray")
+    st.caption("Use a preset or tune the retained components one at a time.")
     initial_rank = min(12, decomposition.max_rank)
     presets = rank_presets(decomposition.max_rank)
     preset_columns = st.columns(len(presets), gap="small")
@@ -125,6 +140,7 @@ def main() -> None:
         border=True,
     )
 
+    st.header("Compare", divider="gray")
     original_column, reconstruction_column = st.columns(2, gap="medium")
     with original_column:
         st.subheader("Processed original")
@@ -159,6 +175,11 @@ def main() -> None:
             width="stretch",
         )
 
+    st.header("Read the spectrum", divider="gray")
+    st.caption(
+        "Tall singular values carry the strongest matrix patterns. The highlighted prefix "
+        "is included in the current reconstruction."
+    )
     st.plotly_chart(
         singular_value_figure(decomposition, rank),
         width="stretch",
@@ -184,6 +205,9 @@ def main() -> None:
             "SVD orders image patterns by their singular values. Keeping the first "
             "**k** patterns gives the best rank-**k** approximation under the Frobenius norm."
         )
+
+    st.divider()
+    st.caption("Built with NumPy, Plotly, and Streamlit · Images are processed in memory.")
 
 
 if __name__ == "__main__":

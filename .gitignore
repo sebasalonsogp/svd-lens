@@ -9,6 +9,7 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
+graphify-out/
 
 # Streamlit secrets are always local
 .streamlit/secrets.toml

@@ -1,9 +1,12 @@
 """Integration tests for the primary Streamlit interaction."""
 
+import logging
 from io import BytesIO
 from pathlib import Path
 
+import pytest
 from PIL import Image
+from streamlit.elements.lib import policies
 from streamlit.testing.v1 import AppTest
 
 from svd_lab.explanations import reconstruction_caption
@@ -23,13 +26,26 @@ def test_app_renders_default_sample_analysis() -> None:
 
     assert not app.exception
     assert app.title[0].value == "SVD Lens"
+    assert [header.value for header in app.header] == [
+        "Choose an image",
+        "Set the rank",
+        "Compare",
+        "Read the spectrum",
+    ]
     assert app.file_uploader[0].label == "Upload your own image"
     assert app.file_uploader[0].allowed_type == [".png", ".jpg", ".jpeg"]
     assert "512 px" in app.file_uploader[0].help
-    assert app.slider[0].label == "Retained rank"
+    assert app.selectbox[0].label == "Sample image"
+    assert app.selectbox[0].options == ["Geometric study", "Soft bands", "Woven detail"]
+    assert app.slider[0].label == "Rank — patterns kept"
     assert app.slider[0].min == 1
     assert app.slider[0].max == 180
     assert app.slider[0].value == 12
+    assert [button.label for button in app.button[:3]] == [
+        "Structure · rank 1",
+        "Balanced · rank 12",
+        "Detail · rank 63",
+    ]
     assert [metric.label for metric in app.metric] == [
         "Rank",
         "Retained energy",
@@ -38,6 +54,18 @@ def test_app_renders_default_sample_analysis() -> None:
     ]
     assert app.metric[0].value == "12 / 180"
     assert len(app.get("plotly_chart")) == 1
+    assert any(
+        "Rank is how many image-building patterns are kept" in caption.value
+        for caption in app.caption
+    )
+    assert any(
+        "Each point is one image-building pattern" in caption.value for caption in app.caption
+    )
+    assert any(
+        "Retained energy measures mathematical information" in caption.value
+        for caption in app.caption
+    )
+    assert app.expander[0].label == "How the reconstruction works"
     assert [heading.value for heading in app.subheader[:2]] == [
         "Processed original",
         "Rank-12 reconstruction",
@@ -59,6 +87,26 @@ def test_rank_slider_updates_the_analysis() -> None:
     assert reconstruction_caption(1) == "Rebuilt from the leading singular component."
 
 
+def test_rank_preset_updates_the_slider() -> None:
+    app = AppTest.from_file(APP_PATH, default_timeout=10).run()
+
+    app.button[0].click().run()
+
+    assert not app.exception
+    assert app.slider[0].value == 1
+    assert app.subheader[1].value == "Rank-1 reconstruction"
+
+
+def test_difference_toggle_reveals_an_error_map() -> None:
+    app = AppTest.from_file(APP_PATH, default_timeout=10).run()
+
+    app.toggle[0].set_value(True).run()
+
+    assert not app.exception
+    assert any(heading.value == "Absolute difference" for heading in app.subheader)
+    assert len(app.get("image")) == 3
+
+
 def test_valid_upload_replaces_the_default_sample() -> None:
     app = AppTest.from_file(APP_PATH, default_timeout=10).run()
 
@@ -68,6 +116,33 @@ def test_valid_upload_replaces_the_default_sample() -> None:
     assert app.slider[0].max == 2
     assert app.slider[0].value == 2
     assert any("PNG · 3 × 2 px" in caption.value for caption in app.caption)
+
+
+def test_tiny_upload_clamps_a_high_preset_without_widget_warnings(
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    app = AppTest.from_file(APP_PATH, default_timeout=10).run()
+    caplog.clear()
+    monkeypatch.setattr(policies, "_shown_default_value_warning", False)
+
+    with caplog.at_level(logging.WARNING):
+        app.button[2].click().run()
+        app.file_uploader[0].set_value(("tiny.png", png_bytes(), "image/png")).run()
+
+    assert not app.exception
+    assert app.slider[0].value == 2
+    assert "created with a default value" not in caplog.text
+
+
+def test_sample_selector_changes_the_source_image() -> None:
+    app = AppTest.from_file(APP_PATH, default_timeout=10).run()
+
+    app.selectbox[0].select("Soft bands").run()
+
+    assert not app.exception
+    assert app.selectbox[0].value == "Soft bands"
+    assert any("Sample: Soft bands" in caption.value for caption in app.caption)
 
 
 def test_invalid_upload_shows_a_safe_error_state() -> None:

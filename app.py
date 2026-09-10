@@ -10,7 +10,7 @@ import numpy as np
 import streamlit as st
 
 from svd_lab import PRODUCT_NAME
-from svd_lab.explanations import reconstruction_caption
+from svd_lab.explanations import rank_presets, reconstruction_caption, reconstruction_insight
 from svd_lab.images import ImageValidationError, prepare_image, to_display_image
 from svd_lab.plots import singular_value_figure
 from svd_lab.samples import available_samples
@@ -24,6 +24,11 @@ from svd_lab.svd import SVDResult, decompose, metrics_for, reconstruct
 def cached_decomposition(matrix: np.ndarray) -> SVDResult:
     """Reuse an image decomposition when a widget reruns the app."""
     return decompose(matrix)
+
+
+def choose_rank(rank: int) -> None:
+    """Apply a rank preset before Streamlit recreates the slider."""
+    st.session_state.rank = rank
 
 
 def main() -> None:
@@ -86,6 +91,16 @@ def main() -> None:
         decomposition = cached_decomposition(matrix)
 
     initial_rank = min(12, decomposition.max_rank)
+    presets = rank_presets(decomposition.max_rank)
+    preset_columns = st.columns(len(presets), gap="small")
+    for column, preset in zip(preset_columns, presets, strict=True):
+        column.button(
+            f"{preset.label} · rank {preset.rank}",
+            on_click=choose_rank,
+            args=(preset.rank,),
+            use_container_width=True,
+        )
+
     rank = st.slider(
         "Retained rank",
         min_value=1,
@@ -96,6 +111,7 @@ def main() -> None:
     )
     reconstruction = reconstruct(decomposition, rank)
     metrics = metrics_for(decomposition, rank)
+    insight = reconstruction_insight(metrics)
 
     metric_columns = st.columns(4, gap="small")
     metric_columns[0].metric("Rank", f"{rank} / {decomposition.max_rank}", border=True)
@@ -125,6 +141,24 @@ def main() -> None:
             width="stretch",
         )
 
+    show_difference = st.toggle(
+        "Show difference map",
+        help="Reveal where the current reconstruction differs from the processed original.",
+    )
+    if show_difference:
+        difference = np.abs(matrix - reconstruction)
+        peak_difference = float(np.max(difference))
+        visible_difference = difference / peak_difference if peak_difference > 0.0 else difference
+        st.subheader("Absolute difference")
+        st.image(
+            to_display_image(visible_difference),
+            caption=(
+                "Brighter pixels differ more. Values are scaled to the current maximum "
+                f"absolute difference of {peak_difference:.3f}."
+            ),
+            width="stretch",
+        )
+
     st.plotly_chart(
         singular_value_figure(decomposition, rank),
         width="stretch",
@@ -132,14 +166,23 @@ def main() -> None:
         key="singular-value-spectrum",
     )
 
+    st.subheader(insight.title)
     if metrics.retained_energy is None:
-        st.info("This image has no variation, so every rank reconstructs it exactly.")
+        st.info(insight.body)
     else:
+        st.write(insight.body)
         st.markdown(
             f"At **rank {rank}**, the reconstruction retains "
             f"**{metrics.retained_energy:.1%}** of the matrix energy while using "
             f"**{metrics.factorized_value_count:,}** factor values instead of "
             f"**{metrics.original_value_count:,}** original matrix values."
+        )
+
+    with st.expander("How the reconstruction works"):
+        st.latex(r"A_k = U_k\,\Sigma_k\,V_k^T")
+        st.markdown(
+            "SVD orders image patterns by their singular values. Keeping the first "
+            "**k** patterns gives the best rank-**k** approximation under the Frobenius norm."
         )
 
 

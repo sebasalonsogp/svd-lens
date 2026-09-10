@@ -32,6 +32,11 @@ def test_app_renders_default_sample_analysis() -> None:
     assert app.slider[0].min == 1
     assert app.slider[0].max == 180
     assert app.slider[0].value == 12
+    assert [button.label for button in app.button[:3]] == [
+        "Structure · rank 1",
+        "Balanced · rank 12",
+        "Detail · rank 63",
+    ]
     assert [metric.label for metric in app.metric] == [
         "Rank",
         "Retained energy",
@@ -40,6 +45,7 @@ def test_app_renders_default_sample_analysis() -> None:
     ]
     assert app.metric[0].value == "12 / 180"
     assert len(app.get("plotly_chart")) == 1
+    assert app.expander[0].label == "How the reconstruction works"
     assert [heading.value for heading in app.subheader[:2]] == [
         "Processed original",
         "Rank-12 reconstruction",
@@ -59,6 +65,26 @@ def test_rank_slider_updates_the_analysis() -> None:
     assert app.metric[2].value != initial_error
     assert app.subheader[1].value == "Rank-1 reconstruction"
     assert reconstruction_caption(1) == "Rebuilt from the leading singular component."
+
+
+def test_rank_preset_updates_the_slider() -> None:
+    app = AppTest.from_file(APP_PATH, default_timeout=10).run()
+
+    app.button[0].click().run()
+
+    assert not app.exception
+    assert app.slider[0].value == 1
+    assert app.subheader[1].value == "Rank-1 reconstruction"
+
+
+def test_difference_toggle_reveals_an_error_map() -> None:
+    app = AppTest.from_file(APP_PATH, default_timeout=10).run()
+
+    app.toggle[0].set_value(True).run()
+
+    assert not app.exception
+    assert any(heading.value == "Absolute difference" for heading in app.subheader)
+    assert len(app.get("image")) == 3
 
 
 def test_valid_upload_replaces_the_default_sample() -> None:

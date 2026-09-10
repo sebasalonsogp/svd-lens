@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from io import BytesIO
 
 import numpy as np
-from numpy.typing import NDArray
+from numpy.typing import ArrayLike, NDArray
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 MAX_IMAGE_DIMENSION = 512
@@ -80,6 +80,26 @@ def prepare_image(
         processed_size=grayscale.size,
         source_format=source_format,
     )
+
+
+def to_display_image(matrix: ArrayLike) -> Image.Image:
+    """Convert a finite 2D numeric matrix to an 8-bit grayscale image.
+
+    Values outside the normalized [0, 1] range are clipped, which keeps small
+    floating-point overshoots from an SVD reconstruction display-safe.
+    """
+    try:
+        values = np.asarray(matrix, dtype=np.float64)
+    except (TypeError, ValueError) as error:
+        raise ValueError("matrix must contain numeric values") from error
+
+    if values.ndim != 2 or values.size == 0:
+        raise ValueError("matrix must be a non-empty two-dimensional array")
+    if not np.isfinite(values).all():
+        raise ValueError("matrix must contain only finite values")
+
+    pixels = np.rint(np.clip(values, 0.0, 1.0) * 255.0).astype(np.uint8)
+    return Image.fromarray(pixels)
 
 
 def _require_positive_int(name: str, value: int) -> None:

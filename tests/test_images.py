@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from svd_lab.images import ImageValidationError, PreparedImage, prepare_image
+from svd_lab.images import ImageValidationError, PreparedImage, prepare_image, to_display_image
 
 
 def encode_image(
@@ -141,3 +141,28 @@ def test_prepare_image_rejects_invalid_processing_limits(option: str, value: int
 def test_prepare_image_requires_bytes() -> None:
     with pytest.raises(TypeError, match="data must be bytes"):
         prepare_image("not bytes")  # type: ignore[arg-type]
+
+
+def test_to_display_image_converts_and_clips_normalized_values() -> None:
+    matrix = np.array([[-0.1, 0.5, 1.2]], dtype=np.float64)
+
+    image = to_display_image(matrix)
+
+    assert image.mode == "L"
+    assert image.size == (3, 1)
+    np.testing.assert_array_equal(np.asarray(image), [[0, 128, 255]])
+    np.testing.assert_array_equal(matrix, [[-0.1, 0.5, 1.2]])
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [
+        np.array([0.0, 1.0]),
+        np.empty((0, 2)),
+        np.array([[np.nan]]),
+        np.array([[np.inf]]),
+    ],
+)
+def test_to_display_image_rejects_invalid_matrices(matrix: np.ndarray) -> None:
+    with pytest.raises(ValueError):
+        to_display_image(matrix)

@@ -49,7 +49,10 @@ def main() -> None:
         "Upload your own image",
         type=["png", "jpg", "jpeg"],
         max_upload_size=10,
-        help="PNG or JPEG, up to 10 MiB. Images are processed in memory and not saved.",
+        help=(
+            "PNG or JPEG, up to 10 MiB. Images are processed in memory, resized to "
+            "at most 512 px on the longest side, and not saved."
+        ),
     )
 
     if upload is None:

@@ -25,6 +25,7 @@ def test_app_renders_default_sample_analysis() -> None:
     assert app.title[0].value == "SVD Lens"
     assert app.file_uploader[0].label == "Upload your own image"
     assert app.file_uploader[0].allowed_type == [".png", ".jpg", ".jpeg"]
+    assert "512 px" in app.file_uploader[0].help
     assert app.slider[0].label == "Retained rank"
     assert app.slider[0].min == 1
     assert app.slider[0].max == 180

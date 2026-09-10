@@ -11,8 +11,9 @@ image approximation.
 The core interactive path is working: visitors can begin with a generated
 geometric sample or upload a PNG/JPEG, select a retained rank, compare the
 processed original with its reconstruction, and inspect quality metrics and the
-singular-value spectrum. Visual refinement, additional samples, explanatory
-states, and performance measurement remain before deployment.
+singular-value spectrum. A reproducible performance baseline now supports the
+512-pixel processing cap. Visual refinement, additional samples, and richer
+explanatory states remain before deployment.
 
 ## Current experience
 
@@ -35,6 +36,7 @@ image codecs.
 - `svd_lab/samples.py` supplies the deterministic zero-setup sample.
 - `svd_lab/plots.py` creates reusable Plotly figures.
 - `svd_lab/explanations.py` is reserved for richer plain-language interpretations.
+- `benchmarks/svd_latency.py` measures the framework-independent numerical path.
 - `tests/` verifies numerical behavior, image handling, the application shell,
   and the boundary between domain logic and UI frameworks.
 
@@ -88,6 +90,20 @@ uv run pytest
 
 The first `uv sync` will create `uv.lock`. Commit that lockfile so local, CI,
 and hosted environments resolve the same dependency versions.
+
+## Performance
+
+The 512-pixel longest-side limit is measurement-backed rather than arbitrary.
+On the documented local baseline, a worst-case 512 × 512 matrix had SVD medians
+of 187.6 ms and 194.3 ms across two trials; cached rank reconstructions remained
+below 1 ms at both the initial and quarter-rank test points. Results vary by
+machine, so hosted responsiveness will be rechecked during deployment.
+
+See [the benchmark method and decision](docs/performance.md), or reproduce it:
+
+```powershell
+uv run python -m benchmarks.svd_latency --sizes 256 384 512 --repetitions 7
+```
 
 ## Deployment
 

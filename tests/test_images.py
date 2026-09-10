@@ -48,6 +48,14 @@ def test_prepare_image_downsamples_while_preserving_aspect_ratio() -> None:
     assert result.matrix.shape == (256, 512)
 
 
+def test_prepare_image_uses_the_measured_512_pixel_default_cap() -> None:
+    upload = encode_image("RGB", (800, 600), (20, 40, 60))
+
+    result = prepare_image(upload)
+
+    assert result.processed_size == (512, 384)
+
+
 def test_prepare_image_does_not_enlarge_small_images() -> None:
     upload = encode_image("L", (8, 4), 100)
 

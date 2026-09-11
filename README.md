@@ -9,7 +9,7 @@ SVD Lens is an interactive explanation of **singular value decomposition
 upload a photo, then move one slider to watch the image rebuild from broad
 structure to fine detail.
 
-This portfolio project was inspired by concepts I encountered in **MTH 520**.
+This portfolio project was inspired by concepts I encountered in my **MTH 520** class.
 It turns the underlying linear algebra into something visible and hands-on,
 while demonstrating numerical programming, data visualization, input handling,
 testing, performance measurement, and interface design.

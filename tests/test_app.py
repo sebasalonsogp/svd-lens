@@ -65,6 +65,7 @@ def test_app_renders_default_sample_analysis() -> None:
         "Retained energy measures mathematical information" in caption.value
         for caption in app.caption
     )
+    assert all("INTERACTIVE MATRIX LAB" not in caption.value for caption in app.caption)
     assert app.expander[0].label == "How the reconstruction works"
     assert [heading.value for heading in app.subheader[:2]] == [
         "Processed original",

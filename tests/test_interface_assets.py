@@ -15,6 +15,12 @@ def test_theme_uses_the_project_visual_system() -> None:
     assert theme["showWidgetBorder"] is True
     assert theme["baseRadius"] == "small"
     assert theme["buttonRadius"] == "small"
+    assert theme["font"].startswith("'IBM Plex Sans':")
+    assert theme["headingFont"].startswith("Newsreader:")
+    assert theme["codeFont"].startswith("'IBM Plex Mono':")
+    assert theme["baseFontSize"] == 16
+    assert theme["baseFontWeight"] == 400
+    assert theme["headingFontWeights"] == [600, 600, 600, 600, 600, 600]
 
 
 def test_interface_styles_include_keyboard_and_mobile_rules() -> None:
@@ -22,4 +28,8 @@ def test_interface_styles_include_keyboard_and_mobile_rules() -> None:
 
     assert ".skip-link:focus" in styles
     assert "min-height: 2.75rem" in styles
+    assert "max-width: 72ch" in styles
+    assert "text-wrap: balance" in styles
+    assert "font-variant-numeric: tabular-nums" in styles
+    assert "::selection" in styles
     assert "@media (max-width: 640px)" in styles

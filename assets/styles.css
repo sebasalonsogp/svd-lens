@@ -4,12 +4,69 @@
     padding-bottom: 4rem;
 }
 
+h1,
+h2,
+h3 {
+    font-optical-sizing: auto;
+    text-wrap: balance;
+}
+
 h1 {
-    letter-spacing: -0.04em;
+    margin-bottom: 0.4rem;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
 }
 
 h2 {
-    letter-spacing: -0.025em;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+}
+
+h3 {
+    line-height: 1.16;
+    letter-spacing: -0.012em;
+}
+
+p,
+li {
+    line-height: 1.62;
+}
+
+.stMarkdown p,
+[data-testid="stCaptionContainer"] {
+    max-width: 72ch;
+}
+
+[data-testid="stCaptionContainer"] {
+    line-height: 1.55;
+    letter-spacing: 0.012em;
+}
+
+label,
+button {
+    letter-spacing: 0.005em;
+}
+
+[data-testid="stMetricLabel"] {
+    font-weight: 600;
+    letter-spacing: 0.018em;
+}
+
+[data-testid="stMetricValue"] {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+}
+
+code,
+kbd,
+samp,
+pre {
+    font-variant-ligatures: none;
+}
+
+::selection {
+    background: rgba(46, 196, 166, 0.28);
+    color: var(--text-color);
 }
 
 .stButton button {
@@ -24,7 +81,7 @@ h2 {
     padding: 0.75rem 1rem;
     background: var(--primary-color);
     color: var(--background-color);
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .skip-link:focus {
@@ -39,6 +96,11 @@ h2 {
     }
 
     h1 {
-        font-size: 2.25rem;
+        font-size: 2.55rem;
+    }
+
+    .stMarkdown p,
+    [data-testid="stCaptionContainer"] {
+        max-width: 100%;
     }
 }

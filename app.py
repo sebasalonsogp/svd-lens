@@ -49,11 +49,10 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    st.caption("INTERACTIVE MATRIX LAB")
     st.title(PRODUCT_NAME)
     st.markdown(
-        "See singular value decomposition rebuild an image, one rank at a time. "
-        "Choose an experiment or bring your own image, then watch structure return as error falls."
+        "Pull an image apart into its strongest visual patterns, then rebuild it one rank "
+        "at a time. Choose a sample or upload your own and watch structure give way to detail."
     )
     st.header("Choose an image", divider="gray")
 

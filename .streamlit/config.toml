@@ -9,8 +9,15 @@ borderColor = "#344840"
 showWidgetBorder = true
 baseRadius = "small"
 buttonRadius = "small"
-font = "sans-serif"
-headingFont = "sans-serif"
+font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+headingFont = "Newsreader:https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,600&display=swap"
+codeFont = "'IBM Plex Mono':https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap"
+baseFontSize = 16
+baseFontWeight = 400
+headingFontSizes = ["3.5rem", "2.1rem", "1.4rem", "1.125rem", "1rem", "0.875rem"]
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+codeFontSize = "0.875rem"
+codeFontWeight = 400
 
 [server]
 maxUploadSize = 10
